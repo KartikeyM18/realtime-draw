@@ -14,10 +14,12 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "jsonwebtoken": "^9.0.3",
     "typescript": "^5.9.3",
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/ws": "^8.18.1"
   }
 }
