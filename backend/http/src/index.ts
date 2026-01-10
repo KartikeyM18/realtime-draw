@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "./config.js";
 import { verifyJwt } from "./middlewares/middlewares.js";
+
 const app = express();
 
 app.use(express.json());
@@ -12,7 +13,6 @@ app.get("/", (req, res) => {
 })
 
 app.post("/signup", (req, res) => {
-    
     res.json({userId: "1"});
 })
 
