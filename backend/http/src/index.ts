@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "./config.js";
 import { verifyJwt } from "./middlewares/middlewares.js";
 import { RoomSchema, SigninSchema, SignupSchema } from "@kadm/draw-common";
+import { prisma } from "@backend/db";
 
 const app = express();
 
@@ -13,11 +14,21 @@ app.get("/", (req, res) => {
     res.json({msg: "hello"});
 })
 
-app.post("/signup", (req, res) => {
-    const data = SignupSchema.safeParse(req.body);
-    if(!data.success){
+app.post("/signup", async (req, res) => {
+    const parsedData = SignupSchema.safeParse(req.body);
+    if(!parsedData.success){
         return res.json({msg: "Incorrect inputs"});
     }
+
+    const data = parsedData.data;
+
+    await prisma.user.create({
+        data:{
+            email: data.username,
+            password: data.password,
+            name: data.name
+        }
+    })
 
     res.json({userId: "1"});
 })
