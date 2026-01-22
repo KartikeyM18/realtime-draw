@@ -11,47 +11,79 @@ app.use(express.json());
 const port = 4000;
 
 app.get("/", (req, res) => {
-    res.json({msg: "hello"});
+    res.json({message: "hello"});
 })
 
 app.post("/signup", async (req, res) => {
     const parsedData = SignupSchema.safeParse(req.body);
     if(!parsedData.success){
-        return res.json({msg: "Incorrect inputs"});
+        return res.json({message: "Incorrect inputs"});
+    }
+
+    const data = parsedData.data;
+    try {
+        const user = await prisma.user.create({
+            data:{
+                email: data.username,
+                password: data.password,
+                name: data.name
+            }
+        })
+    
+        res.json({userId: user.id});
+    
+    } catch (e) {
+        console.log(e);
+        res.json({message: e});    
+    }
+})
+
+app.post("/signin", async (req, res) => {
+
+    const parsedData = SigninSchema.safeParse(req.body);
+    if(!parsedData.success){
+        return res.json({message: "Incorrect inputs"});
     }
 
     const data = parsedData.data;
 
-    await prisma.user.create({
-        data:{
+    const user = await prisma.user.findFirst({
+        where: {
             email: data.username,
-            password: data.password,
-            name: data.name
+            password: data.password
         }
     })
 
-    res.json({userId: "1"});
-})
+    if(!user) return res.json({message: "Not Authorized"}); 
 
-app.get("/signin", (req, res) => {
 
-    const data = SigninSchema.safeParse(req.body);
-    if(!data.success){
-        return res.json({msg: "Incorrect inputs"});
-    }
-
-    const userId = req.userId;
+    const userId = user.id;
     const token = jwt.sign({userId}, JWT_SECRET);
     res.json({token});
 })
 
-app.post("/room", verifyJwt, (req, res) => {
-    const data = RoomSchema.safeParse(req.body);
-    if(!data.success){
-        return res.json({msg: "Incorrect inputs"});
+app.post("/room", verifyJwt, async (req, res) => {
+    const parsedData = RoomSchema.safeParse(req.body);
+    if(!parsedData.success){
+        return res.json({message: "Incorrect inputs"});
     }
 
-    res.json({roomId: 1});
+    const data = parsedData.data;
+
+    const userId = req.userId || "";
+    try{
+
+        const room = await prisma.room.create({
+            data:{
+                name: data.name,
+                adminId: userId
+            }
+        })
+        
+        res.json({roomId: room.id});
+    } catch(e){
+        res.json({message: "Error"});
+    }
 })
 
 app.listen(port, ()=>{
