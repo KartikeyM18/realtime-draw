@@ -86,6 +86,23 @@ app.post("/room", verifyJwt, async (req, res) => {
     }
 })
 
+app.get("/chats/:roomId", async (req, res) => {
+    const roomId = req.params.roomId;
+    const messages = await prisma.chat.findMany({
+        where: {
+            roomId: roomId
+        },
+        orderBy: {
+            id: "desc"
+        },
+        take: 50
+    });
+
+    res.json({
+        messages
+    });
+})
+
 app.listen(port, ()=>{
     console.log(`Listening on port ${port}`);
 })
