@@ -103,6 +103,19 @@ app.get("/chats/:roomId", async (req, res) => {
     });
 })
 
+app.get("/room/:name", async (req, res) => {
+    const name = req.params.name;
+    const room = await prisma.room.findFirst({
+        where: {
+            name: name
+        }
+    })
+
+    res.json({
+        room
+    });
+})
+
 app.listen(port, ()=>{
     console.log(`Listening on port ${port}`);
 })
