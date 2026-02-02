@@ -68,6 +68,8 @@ wss.on("connection", (ws, request)=>{
             user.rooms = user?.rooms.filter((ele)=>ele != parsedData.roomId);
         }
 
+        console.log(parsedData);
+
         if(parsedData.type === "chat"){
 
             await prisma.chat.create({

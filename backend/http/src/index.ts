@@ -4,11 +4,14 @@ import { JWT_SECRET } from "./config.js";
 import { verifyJwt } from "./middlewares/middlewares.js";
 import { RoomSchema, SigninSchema, SignupSchema } from "@kadm/draw-common";
 import { prisma } from "@backend/db";
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
 const port = 4000;
+
+app.use(cors());
 
 app.get("/", (req, res) => {
     res.json({message: "hello"});
