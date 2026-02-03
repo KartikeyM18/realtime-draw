@@ -18,7 +18,11 @@ export function RoomCanvas({ room }: { room: string }) {
             const id = res.data.room.id;
             setRoomId(id);
 
-            const ws = new WebSocket(`${WS_BACKEND}?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkNzBhZGViNy0wMGZkLTQxN2EtYjU0Zi0zNzMxZjc4ODAzOGEiLCJpYXQiOjE3NzAwNTQ3MzB9.pId-VT1v08bBG7GqXiSBCaQXMGoQbgMYutgy7v0TQkw`);
+            const token = localStorage.getItem("token");
+
+            if(!token) return;
+
+            const ws = new WebSocket(`${WS_BACKEND}?token=${token}`);
 
 
             ws.onopen = () => {
