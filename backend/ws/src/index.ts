@@ -1,11 +1,14 @@
+
 import WebSocket, { WebSocketServer } from "ws";
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "./config.js";
 import type { AuthPayload } from "./types/authPayload.js";
 import { prisma } from "@backend/db";
 
+
+
 const port = 4001;
-const wss = new WebSocketServer({port: port});
+const wss = new WebSocketServer({port});
 
 interface User{
     userId: string;
@@ -18,7 +21,6 @@ const users: User[] = [];
 function getDecoded(token: string){
     
     try{
-
         const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
         
         if(!decoded || !decoded.userId) return null;
@@ -30,12 +32,13 @@ function getDecoded(token: string){
     }
 }
 
-wss.on("connection", (ws, request)=>{
+wss.on("connection", (ws, request) => {
     const url = request.url;
     if(!url) return;
-
+    
     const queryParams = new URLSearchParams(url.split('?')[1]);
     const token = queryParams.get('token') ?? "";
+    
 
     const userId = getDecoded(token);
 
@@ -51,7 +54,11 @@ wss.on("connection", (ws, request)=>{
     })
 
     ws.on("error", console.error);
-    
+
+    const interval = setInterval(() => {
+        ws.ping();
+    }, 30000); // Every 30 seconds
+   
     ws.on("message", async (data)=>{
         const parsedData = JSON.parse(data.toString());
         // {type, roomId, message}
@@ -68,7 +75,6 @@ wss.on("connection", (ws, request)=>{
             user.rooms = user?.rooms.filter((ele)=>ele != parsedData.roomId);
         }
 
-        console.log(parsedData);
 
         if(parsedData.type === "chat"){
 
@@ -81,7 +87,7 @@ wss.on("connection", (ws, request)=>{
             })
             
             users.forEach((ele)=>{
-                if(ele.rooms.includes(parsedData.roomId)){
+                if(ele.rooms.includes(parsedData.roomId) && ele.ws !== ws){
                     ele.ws.send(JSON.stringify({
                         type: "chat",
                         roomId: parsedData.roomId,
@@ -89,6 +95,27 @@ wss.on("connection", (ws, request)=>{
                     }))
                 }
             })
+        }
+
+        if(parsedData.type === "clear"){
+            try {
+                await prisma.chat.deleteMany({
+                    where: {
+                        roomId: parsedData.roomId
+                    }
+                });
+
+                users.forEach((ele) => {
+                    if (ele.rooms.includes(parsedData.roomId) && ele.ws !== ws) {
+                        ele.ws.send(JSON.stringify({
+                            type: "clear",
+                            roomId: parsedData.roomId
+                        }));
+                    }
+                });
+            } catch (e) {
+                console.error("Error clearing canvas data:", e);
+            }
         }
     })
     

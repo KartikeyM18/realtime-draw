@@ -1,69 +1,68 @@
-import express from "express";
-import jwt from "jsonwebtoken";
+import { prisma } from "@backend/db";
+import { RoomSchema, SigninSchema, SignupSchema } from "@shared/zod";
+import express from "express"
+import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "./config.js";
 import { verifyJwt } from "./middlewares/middlewares.js";
-import { RoomSchema, SigninSchema, SignupSchema } from "@kadm/draw-common";
-import { prisma } from "@backend/db";
 import cors from "cors";
 
 const app = express();
-
-app.use(express.json());
 const port = 4000;
 
+app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-    res.json({message: "hello"});
+    res.json({message: "hellow"});
 })
 
 app.post("/signup", async (req, res) => {
     const parsedData = SignupSchema.safeParse(req.body);
     if(!parsedData.success){
-        return res.json({message: "Incorrect inputs"});
+        return res.json({message: parsedData.error});
     }
 
     const data = parsedData.data;
     try {
         const user = await prisma.user.create({
             data:{
-                email: data.username,
+                username: data.username,
                 password: data.password,
                 name: data.name
             }
         })
-    
+
         res.json({userId: user.id});
-    
+
     } catch (e) {
         console.log(e);
-        res.json({message: e});    
+        res.json({message: e});
     }
+    
 })
 
 app.post("/signin", async (req, res) => {
-
     const parsedData = SigninSchema.safeParse(req.body);
     if(!parsedData.success){
-        return res.json({message: "Incorrect inputs"});
+        return res.json({message: parsedData.error});
     }
 
     const data = parsedData.data;
 
     const user = await prisma.user.findFirst({
-        where: {
-            email: data.username,
+        where:{
+            username: data.username,
             password: data.password
         }
     })
 
-    if(!user) return res.json({message: "Not Authorized"}); 
-
+    if(!user) return res.json({message: "Not Authorized"});
 
     const userId = user.id;
     const token = jwt.sign({userId}, JWT_SECRET);
     res.json({token});
 })
+
 
 app.post("/room", verifyJwt, async (req, res) => {
     const parsedData = RoomSchema.safeParse(req.body);
@@ -119,6 +118,8 @@ app.get("/room/:name", async (req, res) => {
     });
 })
 
-app.listen(port, ()=>{
+
+
+app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 })

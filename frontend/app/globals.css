@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
+/* --- 1. DESIGN TOKENS (Deep Dark Theme) --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core Backgrounds: Very deep slate/black, avoiding harsh pure #000 */
+  --background: #0a0a0c; 
+  --canvas-bg: #111114; /* Slightly lighter for the actual drawing area */
+  --foreground: #ededed;
+
+  /* Floating UI Elements (Toolbars, Modals) */
+  --card: #16161a;
+  --card-foreground: #ededed;
+  --popover: #1a1a20;
+  --popover-foreground: #ededed;
+
+  /* Accents & Active States (Vibrant Indigo for a modern tech feel) */
+  --primary: #6366f1; 
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;
+  --secondary-foreground: #ededed;
+
+  /* Subtle UI elements (Borders, inactive icons) */
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #ededed;
+  
+  /* System States */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & Focus Rings */
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #6366f1;
+
+  /* Standardized Corner Rounding */
+  --radius: 0.75rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* --- 2. BASE APP RESETS --- */
+@layer base {
+  * {
+    border-color: var(--border);
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    /* Crisper text rendering for professional look */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevents the elastic "bounce" when swiping/scrolling to make it feel like a native app */
+    overscroll-behavior: none; 
+    /* Prevent accidental text selection while drawing */
+    user-select: none; 
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Allow text selection only inside inputs/textareas */
+  input, textarea {
+    user-select: auto;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* --- 3. CUSTOM APP UTILITIES --- */
+@layer utilities {
+  /* Canvas Dot Pattern 
+    Creates the classic "infinite whiteboard" grid effect mathematically, 
+    so it scales perfectly without image loading.
+  */
+  .bg-dot-pattern {
+    background-color: var(--canvas-bg);
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+  }
+
+  /* Premium Glassmorphism
+    Used for floating toolbars to give depth over the canvas.
+  */
+  .glass-panel {
+    background: rgba(22, 22, 26, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Invisible Scrollbar 
+    Keeps scrolling functional in sidebars/menus but hides the ugly OS scrollbar.
+  */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
 }

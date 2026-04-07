@@ -1,1 +1,4 @@
-export const JWT_SECRET = "secret";
+import dotenv from "dotenv"
+dotenv.config();
+
+export const JWT_SECRET = process.env.JWT_PASS as string;

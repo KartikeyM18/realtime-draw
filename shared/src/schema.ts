@@ -14,4 +14,3 @@ export const SigninSchema = z.object({
 export const RoomSchema = z.object({
     name: z.string()
 })
-

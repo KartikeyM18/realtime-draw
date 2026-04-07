@@ -1,13 +1,12 @@
 {
-  "name": "http",
+  "name": "@backend/http",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsc && node ./dist/index.js",
     "build": "npx tsc",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "dev": "npm run build && npm run start"
   },
   "keywords": [],
   "author": "",
@@ -15,15 +14,14 @@
   "type": "module",
   "dependencies": {
     "@backend/db": "file:../db",
-    "@kadm/draw-common": "^1.0.2",
+    "@shared/zod": "file:../../shared",
+    "@types/cors": "^2.8.19",
     "cors": "^2.8.6",
-    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10"
   }
